@@ -1,0 +1,28 @@
+<html>
+
+<head>
+    <title>chatTest</title>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.0.4/socket.io.js"></script>
+
+</head>
+
+<body>
+    <p>testing</p>
+    <script>
+        var socket = io.connect('http://localhost:8080');
+
+        socket.on('connect', data => {
+            socket.emit('chat message', "hi");
+        });
+
+        socket.on('chat message', msg => {
+            console.log("RECEIVED: " + msg);
+        });
+
+        setInterval(()=> {
+            socket.emit('chat message', "PING");
+        }, 5000);
+    </script>
+</body>
+
+</html>
