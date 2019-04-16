@@ -12,44 +12,43 @@ app.use(cors());
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 
-var clientList = [];
-var socketList = [];
+let clientList = [];
 
 io.on('connection', socket => {
-    let tempUserName = 'User-' + Math.floor(Math.random() * 100000 + 1);
+    let clientName = 'User-' + Math.floor(Math.random() * 100 + 1);
 
-    let val = { soc: socket, name: tempUserName };
-    clientList.push(val);
+    clientList.push(socket.id);
+    io.emit('requestClient', clientList);
 
-    socketList.push(socket.id);
-
-    console.log(tempUserName + ' has connected');
-    io.emit('chat message', tempUserName + ' has connected');
+    console.log(clientName + ' has connected');
+    io.emit('chat message', clientName + ' has connected');
 
     socket.on('disconnect', () => {
-        console.log(tempUserName + ' has disconnected');
-        io.emit('chat message', tempUserName + ' has disconnected');
+        console.log(clientName + ' has disconnected');
+        io.emit('chat message', clientName + ' has disconnected');
+        //console.log("Before: " + clientList.length);
+        for (var i = 0; i < clientList.length; ++i) {
+            if (clientList[i] == socket.id) {
+                clientList.splice(i, 1);
+            }
+        }
+        //console.log("After: " + clientList.length);
+    });
+
+    socket.on('requestClients', () => {
+        console.log("sent clientList to " + socket.id);
+        socket.emit('requestClients', clientList);
+    });
+
+    socket.on('roomChat', (roomId, msg) => {
+        console.log("\nFrom: " + socket.id + "\nTo: " + roomId + "\nMSG: " + msg + "\n");
+        socket.broadcast.to(roomId).emit('chat message', msg);
     });
 
     socket.on('chat message', msg => {
-
-        if (msg.startsWith('@User-')) {
-            for (var i = 0; i < clientList.length; ++i) {
-                if ((msg.split(" "))[0].substring(1) == clientList[i].name) {
-                    clientList[i].soc.emit('chat message', 'From ' + tempUserName + ': ' + msg.substring(clientList[i].name.length + 2));
-                    break;
-                }
-            }
-        } else {
-            console.log(tempUserName + ': ' + msg);
-            io.emit('chat message', tempUserName + ': ' + msg);
-        }
-
+        console.log(clientName + ': ' + msg);
+        io.emit('chat message', clientName + ': ' + msg);
     });
-});
-
-app.get('/socketList', (req, res) => {
-    res.json(socketList);
 });
 
 http.listen(HTTP_PORT, () => {

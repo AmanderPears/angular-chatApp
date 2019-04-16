@@ -6,13 +6,11 @@ import { HttpClientModule } from '@angular/common/http';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { ChatWindowComponent } from './chat-window/chat-window.component';
-import { ClientListComponent } from './client-list/client-list.component';
 
 @NgModule({
   declarations: [
     AppComponent,
-    ChatWindowComponent,
-    ClientListComponent
+    ChatWindowComponent
   ],
   imports: [
     BrowserModule,

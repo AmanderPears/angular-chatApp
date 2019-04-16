@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ChatService } from '../chat.service';
+import { Observable } from 'rxjs';
+import { all } from 'q';
 
 @Component({
   selector: 'app-chat-window',
@@ -9,9 +11,12 @@ import { ChatService } from '../chat.service';
 export class ChatWindowComponent implements OnInit {
 
   private getMessagesSub: any;
+  private getClientsSub: any;
   messages: string[] = [];
+  currentChannel: string = "all";
   currentMessage: string;
   socket: any = {};
+  clients: any[] = [];
 
   constructor(private chatService: ChatService) { }
 
@@ -20,16 +25,36 @@ export class ChatWindowComponent implements OnInit {
       this.messages.push(data);
       this.socket = this.chatService.getSocket();
     });
+
+    this.getClientsSub = this.chatService.clients.subscribe(data => {
+      this.clients = data;
+    });
+  }
+
+  roomChat(roomId) {
+    this.chatService.roomChat(roomId, this.currentMessage);
+  }
+
+  setChannel(id) {
+    this.currentChannel = id;
   }
 
   sendMessage() {
-    this.chatService.sendMessage(this.currentMessage);
+    if (this.currentChannel == "all") {
+      this.chatService.sendMessage(this.currentMessage);
+    } else {
+      this.roomChat(this.currentChannel);
+    }
     this.currentMessage = "";
   }
 
   ngOnDestroy() {
     if (this.getMessagesSub) {
       this.getMessagesSub.unsubscribe();
+    }
+
+    if (this.getClientsSub) {
+      this.getClientsSub.unsubscribe();
     }
   }
 

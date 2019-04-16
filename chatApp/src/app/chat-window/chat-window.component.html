@@ -1,12 +1,26 @@
-<p>ID: {{socket.id}}</p>
+<div class="container">
+  <div class="row">
+    <div class="col-md-3">
+      Client List: <br>
+      <div class="btn-group-vertical">
+        <button type="button" class="btn btn-secondary" *ngFor="let client of clients"
+          (click)="setChannel(client)">{{client}}</button>
+      </div>
+    </div>
 
-<div class="well" style="height: 300px; overflow-y: scroll; margin-top:15px">
-  <div *ngFor="let message of messages">{{message}}</div>
+    <div class="col-md-9">
+      <p>Client ID: {{socket.id}}</p>
+
+      <div class="well" style="height: 300px; overflow-y: scroll; margin-top:15px">
+        <div *ngFor="let message of messages">{{message}}</div>
+      </div>
+
+
+      <form (ngSubmit)="sendMessage()">
+        <input type="text" name="currentMessage" class="form-control" [(ngModel)]="currentMessage" />
+        <br />
+        <button type="submit" class="btn btn-primary">Send Message</button>
+      </form>
+    </div>
+  </div>
 </div>
-
-
-<form (ngSubmit)="sendMessage()">
-  <input type="text" name="currentMessage" class="form-control" [(ngModel)]="currentMessage" />
-  <br />
-  <button type="submit" class="btn btn-primary">Send Message</button>
-</form>
